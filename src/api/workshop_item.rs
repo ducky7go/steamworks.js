@@ -294,12 +294,7 @@ pub mod workshop {
                 let children = if return_children {
                     results
                         .get_children(index)
-                        .map(|child_ids| {
-                            child_ids
-                                .iter()
-                                .map(|id| BigInt::from(id.0))
-                                .collect()
-                        })
+                        .map(|child_ids| child_ids.iter().map(|id| BigInt::from(id.0)).collect())
                 } else {
                     None
                 };
@@ -478,10 +473,9 @@ pub mod workshop {
             query_handle = handle_query_config(query_handle, query_config);
 
             query_handle.fetch(move |fetch_result| {
-                tx.send(
-                    fetch_result
-                        .map(|query_results| WorkshopItem::from_query_results(&query_results, 0, return_children)),
-                )
+                tx.send(fetch_result.map(|query_results| {
+                    WorkshopItem::from_query_results(&query_results, 0, return_children)
+                }))
                 .unwrap();
             });
         }
@@ -518,11 +512,9 @@ pub mod workshop {
             query_handle = handle_query_config(query_handle, query_config);
 
             query_handle.fetch(move |fetch_result| {
-                tx.send(
-                    fetch_result.map(|query_results| {
-                        WorkshopItemsResult::from_query_results(query_results, return_children)
-                    }),
-                )
+                tx.send(fetch_result.map(|query_results| {
+                    WorkshopItemsResult::from_query_results(query_results, return_children)
+                }))
                 .unwrap();
             });
         }
