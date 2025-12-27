@@ -32,7 +32,7 @@ const targets = {
 const target = targets[process.argv.at(-1)] || Object.values(targets).find(t => t.platform === process.platform && t.arch === process.arch)
 
 const dist = path.join(__dirname, 'dist', target.folder)
-const redist = path.join(__dirname, 'sdk/redistributable_bin', target.folder)
+const redist = path.join(__dirname, 'vendor/steamworks-rs/steamworks-sys/lib/steam/redistributable_bin', target.folder)
 target.files.forEach(file => {
     const [source, dest] = [path.join(redist, file), path.join(dist, file)]
     try { fs.mkdirSync(path.dirname(dest), { recursive: true }) } catch { }
