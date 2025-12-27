@@ -47,7 +47,7 @@ jobs:
                   node-version: 22.x
 
             # ubuntu:20.04 does not have curl and gcc/g++ installed by default
-            - run: apt-get update && apt-get install -y curl build-essential
+            - run: apt-get update && apt-get install -y curl build-essential git
 
             - name: Setup Rust
               uses: dtolnay/rust-toolchain@stable
