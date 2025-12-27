@@ -74,6 +74,7 @@ jobs:
             - name: Determine version
               id: version
               run: |
+                  git config --global --add safe.directory "$GITHUB_WORKSPACE"
                   if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
                       VERSION="${GITHUB_REF_NAME#v}"
                       echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -86,6 +87,7 @@ jobs:
                       echo "version=$DEV_VERSION" >> $GITHUB_OUTPUT
                       echo "is_release=false" >> $GITHUB_OUTPUT
                   fi
+              shell: bash
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -132,6 +134,7 @@ jobs:
             - name: Determine version
               id: version
               run: |
+                  git config --global --add safe.directory "$GITHUB_WORKSPACE"
                   if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
                       VERSION="${GITHUB_REF_NAME#v}"
                       echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -144,6 +147,7 @@ jobs:
                       echo "version=$DEV_VERSION" >> $GITHUB_OUTPUT
                       echo "is_release=false" >> $GITHUB_OUTPUT
                   fi
+              shell: bash
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -181,6 +185,7 @@ jobs:
             - name: Determine version
               id: version
               run: |
+                  git config --global --add safe.directory "$GITHUB_WORKSPACE"
                   if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
                       VERSION="${GITHUB_REF_NAME#v}"
                       echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -193,6 +198,7 @@ jobs:
                       echo "version=$DEV_VERSION" >> $GITHUB_OUTPUT
                       echo "is_release=false" >> $GITHUB_OUTPUT
                   fi
+              shell: bash
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
