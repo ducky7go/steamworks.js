@@ -66,7 +66,7 @@ jobs:
             - name: Cache xwin CRT
               uses: actions/cache@v4
               with:
-                  path: ~/.xwin-cache
+                  path: ~/.xwin
                   key: xwin-${{ hashFiles('**/Cargo.lock') }}
 
             - run: cargo install cargo-xwin
