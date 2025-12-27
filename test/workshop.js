@@ -1,11 +1,10 @@
 const { init } = require('../index.js');
 
 (async () => {
-    const client = init(4000)
+    const client = init(3167020)
 
-    const items = client.workshop.getSubscribedItems()
-    console.log(`${items.length} subscribed items: ${items.join(', ')}`)
-
-    const details = await client.workshop.getItems(items)
-    console.log(details)
+    const items = await client.workshop.getItem(3595314238n, {
+        returnChildren: true
+    })
+    console.log(items)
 })()
