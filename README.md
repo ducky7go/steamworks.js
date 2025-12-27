@@ -1,5 +1,5 @@
-[![Build Status](https://github.com/ceifa/steamworks.js/actions/workflows/publish.yml/badge.svg)](https://github.com/ceifa/steamworks.js/actions/workflows/publish.yml)
-[![npm](https://img.shields.io/npm/v/steamworks.js.svg)](https://npmjs.com/package/steamworks.js)
+[![Build Status](https://github.com/ducky7go/steamworks.js/actions/workflows/publish.yml/badge.svg)](https://github.com/ducky7go/steamworks.js/actions/workflows/publish.yml)
+[![npm](https://img.shields.io/npm/v/@ducky7go/steamworks.js.svg)](https://npmjs.com/package/@ducky7go/steamworks.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Chat](https://img.shields.io/discord/663831597690257431?label=chat&logo=discord)](https://discord.gg/H6B7UE7fMY)
 
@@ -37,15 +37,29 @@ if (client.achievement.activate('ACHIEVEMENT')) {
 }
 ```
 
-You can refer to the [declarations file](https://github.com/ceifa/steamworks.js/blob/main/client.d.ts) to check the API support and get more detailed documentation of each function.
+You can refer to the [declarations file](https://github.com/ducky7go/steamworks.js/blob/main/client.d.ts) to check the API support and get more detailed documentation of each function.
 
 ## Installation
 
 To use steamworks.js you don't have to build anything, just install it from npm:
 
 ```sh
-$: npm i steamworks.js
+npm i @ducky7go/steamworks.js
 ```
+
+### Migration from `steamworks.js`
+
+If you were using the unscoped `steamworks.js` package, update your `package.json`:
+
+```json
+{
+  "dependencies": {
+    "@ducky7go/steamworks.js": "latest"
+  }
+}
+```
+
+Then run `npm install`. Your `require('steamworks.js')` statements will continue to work without changes.
 
 ### Electron
 
@@ -68,7 +82,7 @@ To make the steam overlay working, call the `electronEnableSteamOverlay` on the 
 require('steamworks.js').electronEnableSteamOverlay()
 ```
 
-For the production build, copy the relevant distro files from `sdk/redistributable_bin/{YOUR_DISTRO}` into the root of your build. If you are using electron-forge, look for [#75](https://github.com/ceifa/steamworks.js/issues/75).
+For the production build, copy the relevant distro files from `sdk/redistributable_bin/{YOUR_DISTRO}` into the root of your build. If you are using electron-forge, look for [#75](https://github.com/ducky7go/steamworks.js/issues/75).
 
 
 ## How to build
@@ -82,7 +96,7 @@ Make sure you have the latest [node.js](https://nodejs.org/en/), [Rust](https://
 This project uses git submodules for the steamworks-rs dependency. When cloning the repository, use:
 
 ```sh
-git clone --recurse-submodules https://github.com/ceifa/steamworks.js.git
+git clone --recurse-submodules https://github.com/ducky7go/steamworks.js.git
 ```
 
 If you have already cloned the repository without submodules, initialize them with:
