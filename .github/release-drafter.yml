@@ -1,0 +1,41 @@
+name: Release Drafter
+version-template: $MAJOR.$MINOR.$PATCH
+tag-template: v$MAJOR.$MINOR.$PATCH
+categories:
+  - title: '🚀 New Features'
+    labels:
+      - 'feat'
+      - 'feature'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bugfix'
+  - title: '⚠️ Breaking Changes'
+    labels:
+      - 'breaking-change'
+  - title: '📚 Documentation'
+    labels:
+      - 'docs'
+  - title: '🎨 Code Style'
+    labels:
+      - 'style'
+  - title: '♻️ Code Refactoring'
+    labels:
+      - 'refactor'
+  - title: '⚡ Performance Improvements'
+    labels:
+      - 'perf'
+  - title: '✅ Tests'
+    labels:
+      - 'test'
+  - title: '🤖 Build System'
+    labels:
+      - 'build'
+  - title: '🔧 CI Configuration'
+    labels:
+      - 'ci'
+change-template: '- $TITLE @$AUTHOR (#$PR)'
+template: |
+  ## What's Changed
+
+  $CHANGES

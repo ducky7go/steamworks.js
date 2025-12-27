@@ -116,3 +116,16 @@ There is no way to build for all targets easily. The good news is that you don't
 Go to the [test/electron](./test/electron) directory. There, you can run `npm install` and then `npm start` to run the Electron app.
 
 Click "activate overlay" to test the overlay.
+
+## Contributing
+
+Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on commit conventions and the pull request process.
+
+## Release Process
+
+This project uses automated release management:
+
+- **Pre-releases**: Automatically created on each push to the `main` branch for testing
+- **Official releases**: Created when a version tag is pushed (e.g., `v1.2.3`)
+
+Release notes are automatically generated from commit messages. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the commit message format.
