@@ -1,6 +1,6 @@
 name: Release Drafter
-version-template: $MAJOR.$MINOR.$PATCH
-tag-template: v$MAJOR.$MINOR.$PATCH
+name-template: "v$RESOLVED_VERSION 🌈"
+tag-template: "v$RESOLVED_VERSION"
 categories:
   - title: '🚀 New Features'
     labels:
