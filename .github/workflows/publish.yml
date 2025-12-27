@@ -3,7 +3,12 @@ name: Publish
 on:
     push:
         branches: [main]
+        tags:
+            - 'v*'
     pull_request:
+
+permissions:
+    contents: read
 
 env:
     DEBUG: 'napi:*'
@@ -58,16 +63,43 @@ jobs:
 
             - uses: Swatinem/rust-cache@v2
 
+            - name: Cache xwin CRT
+              uses: actions/cache@v4
+              with:
+                  path: ~/.xwin-cache
+                  key: xwin-${{ hashFiles('**/Cargo.lock') }}
+
             - run: cargo install cargo-xwin
+
+            - name: Determine version
+              id: version
+              run: |
+                  if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
+                      VERSION="${GITHUB_REF_NAME#v}"
+                      echo "version=$VERSION" >> $GITHUB_OUTPUT
+                      echo "is_release=true" >> $GITHUB_OUTPUT
+                  else
+                      LATEST=$(gh release view --json tagName -q '.tagName' 2>/dev/null || echo "v0.0.0")
+                      BASE_VERSION="${LATEST#v}"
+                      COMMIT_COUNT=$(git rev-list --count HEAD)
+                      DEV_VERSION="${BASE_VERSION}-dev.${COMMIT_COUNT}"
+                      echo "version=$DEV_VERSION" >> $GITHUB_OUTPUT
+                      echo "is_release=false" >> $GITHUB_OUTPUT
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Update package version
+              run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version
 
             - name: Node install
               run: npm ci
 
-            - name: Build Linux
-              run: npm run build -- --target x86_64-unknown-linux-gnu
-
-            - name: Build Windows
-              run: npm run build -- --target x86_64-pc-windows-msvc
+            - name: Build
+              run: |
+                  npm run build -- --target x86_64-unknown-linux-gnu &
+                  npm run build -- --target x86_64-pc-windows-msvc &
+                  wait
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
@@ -97,6 +129,27 @@ jobs:
 
             - uses: Swatinem/rust-cache@v2
 
+            - name: Determine version
+              id: version
+              run: |
+                  if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
+                      VERSION="${GITHUB_REF_NAME#v}"
+                      echo "version=$VERSION" >> $GITHUB_OUTPUT
+                      echo "is_release=true" >> $GITHUB_OUTPUT
+                  else
+                      LATEST=$(gh release view --json tagName -q '.tagName' 2>/dev/null || echo "v0.0.0")
+                      BASE_VERSION="${LATEST#v}"
+                      COMMIT_COUNT=$(git rev-list --count HEAD)
+                      DEV_VERSION="${BASE_VERSION}-dev.${COMMIT_COUNT}"
+                      echo "version=$DEV_VERSION" >> $GITHUB_OUTPUT
+                      echo "is_release=false" >> $GITHUB_OUTPUT
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Update package version
+              run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+
             - name: Node install
               run: npm ci
 
@@ -125,6 +178,27 @@ jobs:
               with:
                   submodules: recursive
 
+            - name: Determine version
+              id: version
+              run: |
+                  if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
+                      VERSION="${GITHUB_REF_NAME#v}"
+                      echo "version=$VERSION" >> $GITHUB_OUTPUT
+                      echo "is_release=true" >> $GITHUB_OUTPUT
+                  else
+                      LATEST=$(gh release view --json tagName -q '.tagName' 2>/dev/null || echo "v0.0.0")
+                      BASE_VERSION="${LATEST#v}"
+                      COMMIT_COUNT=$(git rev-list --count HEAD)
+                      DEV_VERSION="${BASE_VERSION}-dev.${COMMIT_COUNT}"
+                      echo "version=$DEV_VERSION" >> $GITHUB_OUTPUT
+                      echo "is_release=false" >> $GITHUB_OUTPUT
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Update package version
+              run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+
             - name: Download build
               uses: actions/download-artifact@v4
               with:
@@ -141,3 +215,4 @@ jobs:
               uses: JS-DevTools/npm-publish@v1
               with:
                   token: ${{ secrets.NPM_TOKEN }}
+                  tag: ${{ steps.version.outputs.is_release == 'true' && 'latest' || 'dev' }}
