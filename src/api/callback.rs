@@ -16,9 +16,9 @@ pub mod callback {
     impl Handle {
         #[napi]
         pub fn disconnect(&mut self) {
-            if let Some(handle) = self.handle.take() {
-                handle.disconnect();
-            }
+            // The CallbackHandle automatically disconnects when dropped
+            // Taking the handle from Option causes it to drop
+            let _ = self.handle.take();
         }
     }
 
