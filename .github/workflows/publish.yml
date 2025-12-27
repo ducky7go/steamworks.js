@@ -35,8 +35,12 @@ jobs:
         # Run in ubuntu:20.04 container to avoid the issue with glibc version
         container:
             image: ubuntu:20.04
+            options: --user root
 
         steps:
+            - name: Install dependencies
+              run: apt-get update && apt-get install -y git curl build-essential
+
             - uses: actions/checkout@v4
               with:
                   submodules: recursive
@@ -45,9 +49,6 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 22.x
-
-            # ubuntu:20.04 does not have curl and gcc/g++ installed by default
-            - run: apt-get update && apt-get install -y curl build-essential git
 
             - name: Setup Rust
               uses: dtolnay/rust-toolchain@stable
