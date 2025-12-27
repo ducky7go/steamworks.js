@@ -15,6 +15,8 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
 
             - name: Setup Rust
               uses: dtolnay/rust-toolchain@stable
@@ -36,6 +38,8 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
 
             - name: Setup Node
               uses: actions/setup-node@v4
@@ -76,6 +80,8 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
 
             - name: Setup Node
               uses: actions/setup-node@v4
@@ -115,6 +121,8 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
 
             - name: Download build
               uses: actions/download-artifact@v4
