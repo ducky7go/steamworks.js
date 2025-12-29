@@ -255,6 +255,91 @@ pub mod workshop {
         }
     }
 
+    /// Preview types for workshop item additional previews.
+    /// See: https://partner.steamgames.com/doc/api/ISteamUGC#EItemPreviewType
+    #[derive(Debug)]
+    #[napi]
+    pub enum ItemPreviewType {
+        /// Standard image file (e.g., jpg, png, gif, etc.)
+        Image = 0,
+        /// YouTube video ID is stored
+        YouTubeVideo = 1,
+        /// Sketchfab model ID is stored
+        Sketchfab = 2,
+        /// Cube map in horizontal cross layout
+        EnvironmentMapHorizontalCross = 3,
+        /// Environment map in latitude/longitude format
+        EnvironmentMapLatLong = 4,
+        /// Clip ID is stored
+        Clip = 5,
+        /// Reserved max value for custom types
+        ReservedMax = 255,
+    }
+
+    impl From<steamworks::sys::EItemPreviewType> for ItemPreviewType {
+        fn from(preview_type: steamworks::sys::EItemPreviewType) -> Self {
+            match preview_type {
+                steamworks::sys::EItemPreviewType::k_EItemPreviewType_Image => ItemPreviewType::Image,
+                steamworks::sys::EItemPreviewType::k_EItemPreviewType_YouTubeVideo => {
+                    ItemPreviewType::YouTubeVideo
+                }
+                steamworks::sys::EItemPreviewType::k_EItemPreviewType_Sketchfab => ItemPreviewType::Sketchfab,
+                steamworks::sys::EItemPreviewType::k_EItemPreviewType_EnvironmentMap_HorizontalCross => {
+                    ItemPreviewType::EnvironmentMapHorizontalCross
+                }
+                steamworks::sys::EItemPreviewType::k_EItemPreviewType_EnvironmentMap_LatLong => {
+                    ItemPreviewType::EnvironmentMapLatLong
+                }
+                steamworks::sys::EItemPreviewType::k_EItemPreviewType_Clip => ItemPreviewType::Clip,
+                _ => ItemPreviewType::ReservedMax,
+            }
+        }
+    }
+
+    /// Additional preview media for a workshop item.
+    #[derive(Debug)]
+    #[napi(object)]
+    pub struct AdditionalPreview {
+        /// URL or video ID for the preview (e.g., YouTube video ID, Sketchfab model ID, or image URL)
+        pub url_or_video_id: String,
+        /// Original filename of the preview
+        pub original_filename: String,
+        /// Type of preview (image, video, sketchfab model, etc.)
+        pub preview_type: ItemPreviewType,
+    }
+
+    /// Helper function to extract additional previews from Steam API query results.
+    fn get_additional_previews(
+        results: &steamworks::QueryResults,
+        index: u32,
+    ) -> Option<Vec<AdditionalPreview>> {
+        let num_previews = results.num_additional_previews(index);
+
+        if num_previews == 0 {
+            return None;
+        }
+
+        let mut previews = Vec::with_capacity(num_previews as usize);
+
+        for preview_index in 0..num_previews {
+            if let Some((url_or_video_id, original_filename, preview_type)) =
+                results.get_additional_preview(index, preview_index)
+            {
+                previews.push(AdditionalPreview {
+                    url_or_video_id,
+                    original_filename,
+                    preview_type: ItemPreviewType::from(preview_type),
+                });
+            }
+        }
+
+        if previews.is_empty() {
+            None
+        } else {
+            Some(previews)
+        }
+    }
+
     #[derive(Debug)]
     #[napi(object)]
     pub struct WorkshopItem {
@@ -282,6 +367,8 @@ pub mod workshop {
         pub preview_url: Option<String>,
         pub statistics: WorkshopItemStatistic, // Is it necessary to design this as optional?
         pub children: Option<Vec<BigInt>>,
+        /// Additional preview media (images, videos, etc.) for the workshop item
+        pub additional_previews: Option<Vec<AdditionalPreview>>,
     }
 
     impl WorkshopItem {
@@ -289,12 +376,19 @@ pub mod workshop {
             results: &steamworks::QueryResults,
             index: u32,
             return_children: bool,
+            return_additional_previews: bool,
         ) -> Option<Self> {
             results.get(index).map(|item| {
                 let children = if return_children {
                     results
                         .get_children(index)
                         .map(|child_ids| child_ids.iter().map(|id| BigInt::from(id.0)).collect())
+                } else {
+                    None
+                };
+
+                let additional_previews = if return_additional_previews {
+                    get_additional_previews(results, index)
                 } else {
                     None
                 };
@@ -321,6 +415,7 @@ pub mod workshop {
                     preview_url: results.preview_url(index),
                     statistics: WorkshopItemStatistic::from_query_results(results, index),
                     children,
+                    additional_previews,
                 }
             })
         }
@@ -339,10 +434,18 @@ pub mod workshop {
         fn from_query_results(
             query_results: steamworks::QueryResults,
             return_children: bool,
+            return_additional_previews: bool,
         ) -> Self {
             Self {
                 items: (0..query_results.returned_results())
-                    .map(|i| WorkshopItem::from_query_results(&query_results, i, return_children))
+                    .map(|i| {
+                        WorkshopItem::from_query_results(
+                            &query_results,
+                            i,
+                            return_children,
+                            return_additional_previews,
+                        )
+                    })
                     .collect(),
                 returned_results: query_results.returned_results(),
                 total_results: query_results.total_results(),
@@ -362,10 +465,18 @@ pub mod workshop {
         fn from_query_results(
             query_results: steamworks::QueryResults,
             return_children: bool,
+            return_additional_previews: bool,
         ) -> Self {
             Self {
                 items: (0..query_results.returned_results())
-                    .map(|i| WorkshopItem::from_query_results(&query_results, i, return_children))
+                    .map(|i| {
+                        WorkshopItem::from_query_results(
+                            &query_results,
+                            i,
+                            return_children,
+                            return_additional_previews,
+                        )
+                    })
                     .collect(),
                 was_cached: query_results.was_cached(),
             }
@@ -464,6 +575,11 @@ pub mod workshop {
             .and_then(|c| c.return_children)
             .unwrap_or(false);
 
+        let return_additional_previews = query_config
+            .as_ref()
+            .and_then(|c| c.include_additional_previews)
+            .unwrap_or(false);
+
         {
             let mut query_handle = client
                 .ugc()
@@ -474,7 +590,12 @@ pub mod workshop {
 
             query_handle.fetch(move |fetch_result| {
                 tx.send(fetch_result.map(|query_results| {
-                    WorkshopItem::from_query_results(&query_results, 0, return_children)
+                    WorkshopItem::from_query_results(
+                        &query_results,
+                        0,
+                        return_children,
+                        return_additional_previews,
+                    )
                 }))
                 .unwrap();
             });
@@ -498,6 +619,11 @@ pub mod workshop {
             .and_then(|c| c.return_children)
             .unwrap_or(false);
 
+        let return_additional_previews = query_config
+            .as_ref()
+            .and_then(|c| c.include_additional_previews)
+            .unwrap_or(false);
+
         {
             let mut query_handle = client
                 .ugc()
@@ -513,7 +639,11 @@ pub mod workshop {
 
             query_handle.fetch(move |fetch_result| {
                 tx.send(fetch_result.map(|query_results| {
-                    WorkshopItemsResult::from_query_results(query_results, return_children)
+                    WorkshopItemsResult::from_query_results(
+                        query_results,
+                        return_children,
+                        return_additional_previews,
+                    )
                 }))
                 .unwrap();
             });
@@ -541,6 +671,11 @@ pub mod workshop {
             .and_then(|c| c.return_children)
             .unwrap_or(false);
 
+        let return_additional_previews = query_config
+            .as_ref()
+            .and_then(|c| c.include_additional_previews)
+            .unwrap_or(false);
+
         {
             // Start configuring the query for all items
             let mut query_handle = client
@@ -560,7 +695,11 @@ pub mod workshop {
 
             query_handle.fetch(move |fetch_result| {
                 tx.send(fetch_result.map(|query_results| {
-                    WorkshopPaginatedResult::from_query_results(query_results, return_children)
+                    WorkshopPaginatedResult::from_query_results(
+                        query_results,
+                        return_children,
+                        return_additional_previews,
+                    )
                 }))
                 .unwrap();
             });
@@ -589,6 +728,11 @@ pub mod workshop {
             .and_then(|c| c.return_children)
             .unwrap_or(false);
 
+        let return_additional_previews = query_config
+            .as_ref()
+            .and_then(|c| c.include_additional_previews)
+            .unwrap_or(false);
+
         {
             // Start configuring the query for user items
             let mut query_handle = client
@@ -610,7 +754,11 @@ pub mod workshop {
 
             query_handle.fetch(move |fetch_result| {
                 tx.send(fetch_result.map(|query_results| {
-                    WorkshopPaginatedResult::from_query_results(query_results, return_children)
+                    WorkshopPaginatedResult::from_query_results(
+                        query_results,
+                        return_children,
+                        return_additional_previews,
+                    )
                 }))
                 .unwrap();
             });
