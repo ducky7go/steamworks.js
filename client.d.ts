@@ -409,6 +409,35 @@ export declare namespace workshop {
     numSecondsPlayedDuringTimePeriod?: bigint
     numPlaytimeSessionsDuringTimePeriod?: bigint
   }
+  /**
+   * Preview types for workshop item additional previews.
+   * See: https://partner.steamgames.com/doc/api/ISteamUGC#EItemPreviewType
+   */
+  export const enum ItemPreviewType {
+    /** Standard image file (e.g., jpg, png, gif, etc.) */
+    Image = 0,
+    /** YouTube video ID is stored */
+    YouTubeVideo = 1,
+    /** Sketchfab model ID is stored */
+    Sketchfab = 2,
+    /** Cube map in horizontal cross layout */
+    EnvironmentMapHorizontalCross = 3,
+    /** Environment map in latitude/longitude format */
+    EnvironmentMapLatLong = 4,
+    /** Clip ID is stored */
+    Clip = 5,
+    /** Reserved max value for custom types */
+    ReservedMax = 255
+  }
+  /** Additional preview media for a workshop item. */
+  export interface AdditionalPreview {
+    /** URL or video ID for the preview (e.g., YouTube video ID, Sketchfab model ID, or image URL) */
+    urlOrVideoId: string
+    /** Original filename of the preview */
+    originalFilename: string
+    /** Type of preview (image, video, sketchfab model, etc.) */
+    previewType: ItemPreviewType
+  }
   export interface WorkshopItem {
     publishedFileId: bigint
     creatorAppId?: number
@@ -434,6 +463,8 @@ export declare namespace workshop {
     previewUrl?: string
     statistics: WorkshopItemStatistic
     children?: Array<bigint>
+    /** Additional preview media (images, videos, etc.) for the workshop item */
+    additionalPreviews?: Array<AdditionalPreview>
   }
   export interface WorkshopPaginatedResult {
     items: Array<WorkshopItem | undefined | null>

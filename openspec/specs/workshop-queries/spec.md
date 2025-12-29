@@ -1,8 +1,10 @@
 # workshop-queries Specification
 
 ## Purpose
-TBD - created by archiving change list-children-hierarchical-data-support. Update Purpose after archive.
+The workshop query system provides a way to query Steam Workshop items with various filtering and options for returning additional data like children and previews.
+
 ## Requirements
+
 ### Requirement: Workshop Query Children Support
 
 The workshop query system SHALL support returning child items for collections and hierarchical workshop content through the `returnChildren` query configuration option.
@@ -33,3 +35,50 @@ The workshop query system SHALL support returning child items for collections an
 - **THEN** the `children` property MUST be typed as `Array<bigint> | undefined`
 - **AND** the property MUST be optional to maintain backward compatibility
 
+### Requirement: Workshop Query Additional Previews Support
+
+The workshop query system SHALL support returning additional preview media (images, videos, Sketchfab models, etc.) for workshop items through the `includeAdditionalPreviews` query configuration option.
+
+#### Scenario: Enable additional previews return in query config
+- **WHEN** a workshop query is executed with `queryConfig.includeAdditionalPreviews = true`
+- **THEN** each returned `WorkshopItem` that has additional previews MUST include an `additionalPreviews` array property
+- **AND** the `additionalPreviews` array MUST contain `AdditionalPreview` objects with properties:
+  - `urlOrVideoId`: The URL or video ID for the preview
+  - `originalFileName`: The original filename of the preview
+  - `type`: The preview type from `ItemPreviewType` enum
+
+#### Scenario: Query without additional previews return
+- **WHEN** a workshop query is executed without `includeAdditionalPreviews` or with `includeAdditionalPreviews = false`
+- **THEN** each returned `WorkshopItem` MUST NOT include the `additionalPreviews` array
+
+#### Scenario: Additional preview types
+- **WHEN** additional previews are requested
+- **THEN** the system MUST support all Steam preview types defined in `ItemPreviewType`:
+  - `Image` (0): Standard image files (jpg, png, gif, etc.)
+  - `YouTubeVideo` (1): YouTube video IDs
+  - `Sketchfab` (2): Sketchfab model IDs
+  - `EnvironmentMapHorizontalCross` (3): Cube map in horizontal cross layout
+  - `EnvironmentMapLatLong` (4): Environment map in latitude/longitude format
+  - `Clip` (5): Clip IDs
+  - `ReservedMax` (255): Reserved for custom types
+
+#### Scenario: Empty or undefined additional previews
+- **WHEN** a `WorkshopItem` has no additional previews
+- **THEN** the `additionalPreviews` property MUST be `undefined` when `includeAdditionalPreviews = true` and no previews exist
+- **OR** the `additionalPreviews` property MUST be an empty array when `includeAdditionalPreviews = true` and no previews exist
+- **OR** the `additionalPreviews` property MUST be `undefined` when `includeAdditionalPreviews` is not set or `false`
+
+#### Scenario: Type safety for additional previews property
+- **WHEN** the `WorkshopItem` interface is used in TypeScript
+- **THEN** the `additionalPreviews` property MUST be typed as `Array<AdditionalPreview> | undefined`
+- **AND** the property MUST be optional to maintain backward compatibility
+- **AND** the `AdditionalPreview` interface MUST include:
+  - `urlOrVideoId: string`
+  - `originalFileName: string`
+  - `type: ItemPreviewType`
+
+#### Scenario: Backward compatibility
+- **WHEN** existing code uses `WorkshopItem` without requesting additional previews
+- **THEN** the code MUST continue to work without any changes
+- **AND** the `additionalPreviews` property MUST be optional
+- **AND** queries without `includeAdditionalPreviews` MUST work correctly
