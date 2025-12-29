@@ -23,10 +23,10 @@ let runCallbacksInterval = undefined
 /**
  * Initialize the steam client or throw an error if it fails
  * @param {number} [appId] - App ID of the game to load, if undefined, will search for a steam_appid.txt file
- * @returns {Omit<Client, 'init' | 'runCallbacks'>}
+ * @returns {Omit<Client, 'init' | 'runCallbacks' | 'shutdown'>}
 */
 module.exports.init = (appId) => {
-    const { init: internalInit, runCallbacks, restartAppIfNecessary, ...api } = nativeBinding
+    const { init: internalInit, runCallbacks, restartAppIfNecessary, shutdown, ...api } = nativeBinding
 
     internalInit(appId)
 
@@ -37,11 +37,28 @@ module.exports.init = (appId) => {
 }
 
 /**
+ * Shuts down the Steam client connection and releases resources.
+ * This should be called when you want to disconnect from Steam.
+ * After calling shutdown(), you can call init() again to re-establish the connection.
+ */
+module.exports.shutdown = () => {
+    clearInterval(runCallbacksInterval)
+    runCallbacksInterval = undefined
+    nativeBinding.shutdown()
+}
+
+/**
  * @param {number} appId - App ID of the game to load
  * {@link https://partner.steamgames.com/doc/api/steam_api#SteamAPI_RestartAppIfNecessary}
- * @returns {boolean} 
+ * @returns {boolean}
  */
 module.exports.restartAppIfNecessary = (appId) => nativeBinding.restartAppIfNecessary(appId);
+
+/**
+ * Check if the Steam client is currently connected and initialized.
+ * @returns {boolean} true if Steam client is connected, false otherwise
+ */
+module.exports.isConnected = () => nativeBinding.isConnected();
 
 /**
  * Enable the steam overlay on electron
