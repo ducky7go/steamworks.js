@@ -1,6 +1,8 @@
 export declare function init(appId?: number | undefined | null): void
 export declare function restartAppIfNecessary(appId: number): boolean
 export declare function runCallbacks(): void
+export declare function shutdown(): void
+export declare function isConnected(): boolean
 export interface PlayerSteamId {
   steamId64: bigint
   steamId32: string

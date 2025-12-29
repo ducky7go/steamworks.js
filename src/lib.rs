@@ -38,7 +38,19 @@ pub fn restart_app_if_necessary(app_id: u32) -> bool {
 
 #[napi]
 pub fn run_callbacks() {
-    client::get_client().run_callbacks();
+    if client::has_client() {
+        client::get_client().run_callbacks();
+    }
+}
+
+#[napi]
+pub fn shutdown() {
+    client::drop_client();
+}
+
+#[napi]
+pub fn is_connected() -> bool {
+    client::has_client()
 }
 
 pub mod api;
