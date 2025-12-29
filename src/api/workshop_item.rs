@@ -438,7 +438,14 @@ pub mod workshop {
         ) -> Self {
             Self {
                 items: (0..query_results.returned_results())
-                    .map(|i| WorkshopItem::from_query_results(&query_results, i, return_children, return_additional_previews))
+                    .map(|i| {
+                        WorkshopItem::from_query_results(
+                            &query_results,
+                            i,
+                            return_children,
+                            return_additional_previews,
+                        )
+                    })
                     .collect(),
                 returned_results: query_results.returned_results(),
                 total_results: query_results.total_results(),
@@ -462,7 +469,14 @@ pub mod workshop {
         ) -> Self {
             Self {
                 items: (0..query_results.returned_results())
-                    .map(|i| WorkshopItem::from_query_results(&query_results, i, return_children, return_additional_previews))
+                    .map(|i| {
+                        WorkshopItem::from_query_results(
+                            &query_results,
+                            i,
+                            return_children,
+                            return_additional_previews,
+                        )
+                    })
                     .collect(),
                 was_cached: query_results.was_cached(),
             }
@@ -576,7 +590,12 @@ pub mod workshop {
 
             query_handle.fetch(move |fetch_result| {
                 tx.send(fetch_result.map(|query_results| {
-                    WorkshopItem::from_query_results(&query_results, 0, return_children, return_additional_previews)
+                    WorkshopItem::from_query_results(
+                        &query_results,
+                        0,
+                        return_children,
+                        return_additional_previews,
+                    )
                 }))
                 .unwrap();
             });
@@ -620,7 +639,11 @@ pub mod workshop {
 
             query_handle.fetch(move |fetch_result| {
                 tx.send(fetch_result.map(|query_results| {
-                    WorkshopItemsResult::from_query_results(query_results, return_children, return_additional_previews)
+                    WorkshopItemsResult::from_query_results(
+                        query_results,
+                        return_children,
+                        return_additional_previews,
+                    )
                 }))
                 .unwrap();
             });
@@ -672,7 +695,11 @@ pub mod workshop {
 
             query_handle.fetch(move |fetch_result| {
                 tx.send(fetch_result.map(|query_results| {
-                    WorkshopPaginatedResult::from_query_results(query_results, return_children, return_additional_previews)
+                    WorkshopPaginatedResult::from_query_results(
+                        query_results,
+                        return_children,
+                        return_additional_previews,
+                    )
                 }))
                 .unwrap();
             });
@@ -727,7 +754,11 @@ pub mod workshop {
 
             query_handle.fetch(move |fetch_result| {
                 tx.send(fetch_result.map(|query_results| {
-                    WorkshopPaginatedResult::from_query_results(query_results, return_children, return_additional_previews)
+                    WorkshopPaginatedResult::from_query_results(
+                        query_results,
+                        return_children,
+                        return_additional_previews,
+                    )
                 }))
                 .unwrap();
             });
