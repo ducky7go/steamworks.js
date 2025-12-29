@@ -1,41 +1,45 @@
-name: Release Drafter
 name-template: "v$RESOLVED_VERSION 🌈"
 tag-template: "v$RESOLVED_VERSION"
 categories:
-  - title: '🚀 New Features'
+  - title: "💥 Breaking Changes"
+    label: "💥 Breaking Change"
+
+  - title: "🌟 New Features"
+    label: "🌟 New Feature"
+
+  - title: "⭐ Features"
+    label: "⭐ Feature"
+
+  - title: "🐞 Bug Fixes"
+    label: "🐞 Bug Fix"
+
+  - title: "🛠 Improvements"
+    label: "🛠 Improvement"
+
+  - title: "🌀 External Changes"
+    label: "🔌 3rd Party Plugin"
+
+  - title: "📖 Documentation"
+    label: "📖 Docs"
+
+  - title: "🌍 Localization"
+    label: "🌍 i18n"
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+exclude-labels:
+  - 'skip-changelog'
+version-resolver:
+  major:
     labels:
-      - 'feat'
-      - 'feature'
-  - title: '🐛 Bug Fixes'
+      - "major"
+  minor:
     labels:
-      - 'fix'
-      - 'bugfix'
-  - title: '⚠️ Breaking Changes'
+      - "minor"
+  patch:
     labels:
-      - 'breaking-change'
-  - title: '📚 Documentation'
-    labels:
-      - 'docs'
-  - title: '🎨 Code Style'
-    labels:
-      - 'style'
-  - title: '♻️ Code Refactoring'
-    labels:
-      - 'refactor'
-  - title: '⚡ Performance Improvements'
-    labels:
-      - 'perf'
-  - title: '✅ Tests'
-    labels:
-      - 'test'
-  - title: '🤖 Build System'
-    labels:
-      - 'build'
-  - title: '🔧 CI Configuration'
-    labels:
-      - 'ci'
-change-template: '- $TITLE @$AUTHOR (#$PR)'
+      - "patch"
+  default: patch
 template: |
-  ## What's Changed
+  ## Changes
 
   $CHANGES
