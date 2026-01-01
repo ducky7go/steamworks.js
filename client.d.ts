@@ -260,6 +260,7 @@ export declare namespace workshop {
     contentPath?: string
     tags?: Array<string>
     visibility?: UgcItemVisibility
+    language?: string
   }
   export interface InstallInfo {
     folder: string

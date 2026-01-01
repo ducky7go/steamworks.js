@@ -56,6 +56,7 @@ pub mod workshop {
         pub content_path: Option<String>,
         pub tags: Option<Vec<String>>,
         pub visibility: Option<UgcItemVisibility>,
+        pub language: Option<String>,
     }
 
     impl UgcUpdate {
@@ -66,6 +67,10 @@ pub mod workshop {
                 + Send
                 + 'static,
         ) -> steamworks::UpdateWatchHandle {
+            if let Some(language) = self.language {
+                update = update.language(language.as_str());
+            }
+
             if let Some(title) = self.title {
                 update = update.title(title.as_str());
             }
