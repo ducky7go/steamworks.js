@@ -1,7 +1,6 @@
 [![Build Status](https://github.com/ducky7go/steamworks.js/actions/workflows/publish.yml/badge.svg)](https://github.com/ducky7go/steamworks.js/actions/workflows/publish.yml)
 [![npm](https://img.shields.io/npm/v/@ducky7go/steamworks.js.svg)](https://npmjs.com/package/@ducky7go/steamworks.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Chat](https://img.shields.io/discord/663831597690257431?label=chat&logo=discord)](https://discord.gg/H6B7UE7fMY)
 
 # Steamworks.js
 
@@ -120,6 +119,104 @@ Click "activate overlay" to test the overlay.
 ## Contributing
 
 Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on commit conventions and the pull request process.
+
+## Workshop Multilingual Support
+
+Steamworks.js supports localized content for Steam Workshop items. You can update the title and description for different languages using the `language` parameter.
+
+### Basic Usage
+
+```js
+// Update English content (backward compatible - no language specified)
+await workshop.updateItem(itemId, {
+  title: "My Mod",
+  description: "English description"
+});
+
+// Update English content (explicitly)
+await workshop.updateItem(itemId, {
+  title: "My Mod",
+  description: "English description",
+  language: "english"
+});
+
+// Update Chinese content
+await workshop.updateItem(itemId, {
+  title: "我的模组",
+  description: "中文描述",
+  language: "schinese"
+});
+```
+
+### Multiple Languages
+
+Since Steam API only supports updating one language at a time, you need to make multiple `updateItem()` calls for each language:
+
+```js
+// Sequential updates
+await workshop.updateItem(itemId, {
+  title: "My Mod",
+  description: "English description",
+  language: "english"
+});
+
+await workshop.updateItem(itemId, {
+  title: "Mon Mod",
+  description: "Description française",
+  language: "french"
+});
+
+await workshop.updateItem(itemId, {
+  title: "Mi Mod",
+  description: "Descripción en español",
+  language: "spanish"
+});
+```
+
+Or use `Promise.all()` for parallel updates:
+
+```js
+await Promise.all([
+  workshop.updateItem(itemId, {
+    title: "Mein Mod",
+    description: "Deutsche Beschreibung",
+    language: "german"
+  }),
+  workshop.updateItem(itemId, {
+    title: "私のMod",
+    description: "日本語の説明",
+    language: "japanese"
+  }),
+  workshop.updateItem(itemId, {
+    title: "내 모드",
+    description: "한국어 설명",
+    language: "korean"
+  })
+]);
+```
+
+### Supported Language Codes
+
+Steam supports the following language codes:
+
+| Code | Language | Code | Language |
+|------|----------|------|----------|
+| `english` | English | `schinese` | Simplified Chinese |
+| `tchinese` | Traditional Chinese | `german` | German |
+| `french` | French | `italian` | Italian |
+| `korean` | Korean | `spanish` | Spanish |
+| `russian` | Russian | `thai` | Thai |
+| `japanese` | Japanese | `portuguese` | Portuguese |
+| `polish` | Polish | `danish` | Danish |
+| `dutch` | Dutch | `finnish` | Finnish |
+| `norwegian` | Norwegian | `swedish` | Swedish |
+| `hungarian` | Hungarian | `czech` | Czech |
+| `romanian` | Romanian | `turkish` | Turkish |
+| `brazilian` | Brazilian Portuguese | `bulgarian` | Bulgarian |
+| `greek` | Greek | `arabic` | Arabic |
+| `ukrainian` | Ukrainian | `vietnamese` | Vietnamese |
+
+**Note**: If `language` is omitted, it defaults to `"english"`.
 
 ## Release Process
 
